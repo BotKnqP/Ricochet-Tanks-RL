@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.venv/
+runs/
+.tensorboard/
+.claude/
+data/
+node_modules/
+*.mp4
+_record_sample.jsonl
+
+# OS / editor / tooling cruft
+.DS_Store
+Thumbs.db
+*.log
+.pytest_cache/
+.ipynb_checkpoints/
+.idea/
+.vscode/
+
+# stray nested clone of this repo (delete it; push from THIS top-level repo instead)
+/Ricochet-Tanks-RL/

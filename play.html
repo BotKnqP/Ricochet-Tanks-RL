@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ricochet Tanks RL — Play vs the Agent</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* play.html-only polish on top of styles.css (the game canvas/panel styling is reused as-is) */
+    .intro { max-width: 980px; margin: 18px auto 6px; padding: 0 16px; color: #cfe; font: 400 15px/1.5 system-ui, sans-serif; }
+    .intro h1 { font-size: 26px; margin: 0 0 4px; color: #eaf2ff; }
+    .intro .pitch { color: #9fb3c8; margin: 0 0 10px; }
+    .intro .result { display: inline-block; background: rgba(60,200,120,0.14); border: 1px solid rgba(60,200,120,0.4);
+      color: #bfe8cf; border-radius: 8px; padding: 6px 12px; font-weight: 600; }
+    .modes { max-width: 980px; margin: 14px auto; padding: 0 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .modes .group { display: flex; flex-direction: column; gap: 6px; }
+    .modes .label { font: 600 12px system-ui; color: #7f93a8; text-transform: uppercase; letter-spacing: .04em; }
+    .modes .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .modes a { text-decoration: none; background: #141a26; color: #cfe; border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 8px; padding: 8px 13px; font: 600 13px system-ui; transition: background .12s, border-color .12s; }
+    .modes a:hover { background: #1d2636; border-color: rgba(120,180,255,0.6); }
+    .modes a.play { border-color: rgba(120,180,255,0.45); }
+    .modes a.watch { border-color: rgba(60,200,120,0.4); }
+    .howto { max-width: 980px; margin: 6px auto 30px; padding: 0 16px; color: #8aa0b6; font: 400 13px/1.55 system-ui; }
+    .howto code { background: #141a26; padding: 1px 5px; border-radius: 4px; color: #cfe; }
+    .howto a { color: #7fb0ff; }
+  </style>
+</head>
+<body>
+  <!-- No query params -> default preset: WATCH the v1.5 agent (blue=v15clone) vs easy_laika (red) at 4× speed.
+       Runs (and finishes) before the engine scripts below, so initWatchMode reads the updated URL. -->
+  <script>
+    if (!window.location.search) {
+      history.replaceState(null, "", "play.html?arena=survival&scenario=moba1v1duel&camera=god&spawn=half_random&watch=1&blue=v15clone&red=easy_laika&speed=4");
+    }
+  </script>
+
+  <div class="intro">
+    <h1>Ricochet Tanks RL</h1>
+    <p class="pitch">Offline maze tank duel with bouncing shells, walls, power-ups and a shrinking poison ring —
+      play against, or watch, a tank agent trained by imitation + self-play under random spawn.</p>
+    <span class="result">★ v1.5 neural agent — <strong>mean 0.59</strong> win-rate vs the laika family (laika · easy_laika · stationary · pro)</span>
+  </div>
+
+  <p class="howto" style="margin-top:0;">
+    Set up any match in the bar at the top of the page — pick the <strong>地图 Map</strong> (1v1 duel, random or fixed spawn)
+    and who drives each tank: <strong>蓝方 Blue</strong> / <strong>红方 Red</strong> can each be 玩家 <em>(Player)</em>,
+    a ★ <em>智能体 agent</em>, or a hand-coded <em>脚本 script</em>. To play yourself, set a side to 玩家 and click the arena to
+    capture keys (<code>WASD+Space</code> = blue · <code>Arrows+Enter</code> = red). <kbd>K</kbd> cycles the camera, <kbd>[</kbd>/<kbd>]</kbd> change speed.
+  </p>
+
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>Match</h1>
+        <p>Blue = the agent · Red = you or a scripted opponent. First death loses.</p>
+      </div>
+      <div class="scoreboard" aria-live="polite">
+        <div class="score score-p1"><span>Blue</span><strong id="p1Score">0</strong></div>
+        <div class="score score-p2"><span>Red</span><strong id="p2Score">0</strong></div>
+      </div>
+    </header>
+
+    <section class="game-wrap">
+      <canvas id="game" width="960" height="640" tabindex="0" aria-label="Ricochet Tanks game canvas"></canvas>
+      <aside class="panel">
+        <div class="panel-block">
+          <h2>Status</h2>
+          <div class="stat-row"><span>Mode</span><strong id="modeLabel">Bot</strong></div>
+          <div class="stat-row"><span>Arena</span><strong id="arenaSeed">0</strong></div>
+          <div class="stat-row"><span>Power-up</span><strong id="powerupLabel">Waiting</strong></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <p class="howto">
+    The agent (★ v1.5 neural) is a 105-d, identity-blind policy (it never sees the opponent's name); the other options are hand-coded script bots.
+    Honest note: it wins ~59% overall here, but the evasive <code>laika</code> remains a hard ~30% — a documented
+    "fire-timing" wall. Full write-up in <a href="docs/TRAINING_HISTORY_en.md">docs/TRAINING_HISTORY_en.md</a>.
+  </p>
+
+  <!-- Single source of truth: model weights, then physics (game_core) before render (game_render). -->
+  <!-- the deliverable: the v1.5 DAgger/self-play agent, registers RICOCHET_POLICIES["v15clone"] (105-d obs) -->
+  <script src="model_weights_v15clone.js"></script>
+  <!-- the fixed-spawn champion (strongest agent under fixed spawn), 105-d obs, registers RICOCHET_POLICIES["v3champ"] -->
+  <script src="model_weights_v3champ.js"></script>
+  <script src="game_core.js?v=survival39"></script>
+  <script src="game_render.js?v=survival39"></script>
+</body>
+</html>

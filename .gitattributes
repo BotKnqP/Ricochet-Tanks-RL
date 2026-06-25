@@ -1,0 +1,16 @@
+# Normalize line endings to LF in the repo (avoids CRLF noise from Windows / web upload)
+* text=auto eol=lf
+*.js   text eol=lf
+*.py   text eol=lf
+*.md   text eol=lf
+*.sh   text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.css  text eol=lf
+*.txt  text eol=lf
+
+# Binary assets — never touch
+*.zip binary
+*.gif binary
+*.png binary
+*.mp4 binary

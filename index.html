@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ricochet Tanks RL</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>Ricochet Tanks RL</h1>
+        <p>Offline maze tank duel with bouncing shells and power-ups.</p>
+      </div>
+      <div class="scoreboard" aria-live="polite">
+        <div class="score score-p1">
+          <span>Blue</span>
+          <strong id="p1Score">0</strong>
+        </div>
+        <div class="score score-p2">
+          <span>Red</span>
+          <strong id="p2Score">0</strong>
+        </div>
+      </div>
+    </header>
+
+    <section class="game-wrap">
+      <canvas id="game" width="960" height="640" tabindex="0" aria-label="Ricochet Tanks game canvas"></canvas>
+      <aside class="panel">
+        <div class="panel-block">
+          <h2>Status</h2>
+          <div class="stat-row"><span>Mode</span><strong id="modeLabel">Bot</strong></div>
+          <div class="stat-row"><span>Arena</span><strong id="arenaSeed">0</strong></div>
+          <div class="stat-row"><span>Power-up</span><strong id="powerupLabel">Waiting</strong></div>
+        </div>
+
+        <div class="panel-block">
+          <h2>Maps</h2>
+          <p>Arena: <a href="?arena=maze">maze</a> · <a href="?arena=open">open</a> · <a href="?arena=survival&camera=god">survival</a></p>
+          <p>Camera: press <kbd>K</kbd> to cycle god / follow-blue / follow-red live (no restart). Initial: <code>?camera=god|blue|red</code>.</p>
+          <p>survival = 2× world, sparse central safe zone, shrinking poison ring. Follow views centre on the tank and show a minimap; <code>camera=god</code> shows the whole map.</p>
+          <p><em>Note: the <code>watch=runs/…</code> playback links replay recorded training runs and need the optional full-artifact archive (<code>runs/</code> is not shipped with the repo). The live <code>play=1</code> / <code>watch=1</code> agent links below work standalone.</em></p>
+          <p>Lesson 1 (nav): <a href="?arena=survival&scenario=nav_powerup_poison&camera=blue&red=none">play</a> · <a href="?arena=survival&scenario=nav_powerup_poison&camera=god&red=none">god</a> · <a href="?arena=survival&scenario=nav_powerup_poison&camera=god&watch=runs/nav_powerup_poison_v1&red=none">watch</a></p>
+          <p>Lesson 1b (route): <a href="?arena=survival&scenario=nav_route_to_center&camera=blue&red=none">play</a> · <a href="?arena=survival&scenario=nav_route_to_center&camera=god&red=none">god</a> · <a href="?arena=survival&scenario=nav_route_to_center&camera=god&watch=runs/nav_route_to_center_v1&red=none">watch</a></p>
+          <p>Fixed Duel (combat): <a href="?arena=survival&scenario=fixed_moba&camera=god&red=none">god</a> · <a href="?arena=survival&scenario=fixed_moba&camera=blue&red=laika">vs laika</a> · <a href="?arena=survival&scenario=fixed_moba&camera=god&watch=runs/fixed_moba_v1&red=laika">watch</a></p>
+          <p>1v1 Duel (poison+regen): <a href="?arena=survival&scenario=moba1v1duel&camera=god&red=easy_laika">vs easy_laika</a> · <a href="?arena=survival&scenario=moba1v1duel&camera=blue&red=laika">vs laika</a> · <a href="?arena=survival&scenario=moba1v1duel&camera=god&watch=runs/moba1v1duel_vs_easy_laika_v1&red=easy_laika">watch (easy)</a></p>
+          <p>🎮 <strong>对战智能体 Play vs the Agent</strong> (survival_v2): <a href="?arena=survival&scenario=moba1v1duel&camera=god&ruleset=survival_v2&play=1">you = RED (Arrows+Enter)</a> · <a href="?arena=survival&scenario=moba1v1duel&camera=god&ruleset=survival_v2&play=1&side=blue">you = BLUE (WASD)</a> — pick the agent &amp; swap sides in-page</p>
+          <p>🧠 <strong>对战 v1.5 神经网络</strong> (v1 numbers + random spawn, the league agent): <a href="?arena=survival&scenario=moba1v1duel&camera=god&spawn=half_random&play=1">you = RED (Arrows+Enter)</a> · <a href="?arena=survival&scenario=moba1v1duel&camera=god&spawn=half_random&play=1&side=blue">you = BLUE (WASD)</a> — agent defaults to the ★ v1.5 neural net</p>
+          <p>👁 <strong>观战 v1.5 神经网络 Watch</strong> (agent vs script, live win-rate): <a href="?arena=survival&scenario=moba1v1duel&camera=god&spawn=half_random&watch=1&red=laika">vs laika</a> · <a href="?arena=survival&scenario=moba1v1duel&camera=god&spawn=half_random&watch=1&red=laika-aggressive-pro">vs pro</a> · <a href="?arena=survival&scenario=moba1v1duel&camera=god&spawn=half_random&watch=1&red=easy_laika">vs easy_laika</a> — pick the opponent &amp; speed in-page</p>
+          <p>Poison Run 跑毒课 (nav): <a href="?arena=survival&scenario=moba_poison_run&camera=god&red=none">god</a> · <a href="?arena=survival&scenario=moba_poison_run&camera=blue&red=none">blue</a> · <a href="?arena=survival&scenario=moba_poison_run&camera=god&watch=runs/moba_poison_run_v1&red=none">watch</a></p>
+          <p>Record human demo (BC): <a href="?arena=survival&scenario=moba1v1duel&camera=blue&red=easy_laika&record=human">play &amp; record vs easy_laika</a> — WASD+Space · <kbd>R</kbd> rec · <kbd>N</kbd> next · <kbd>E</kbd> export · <kbd>G</kbd>/<kbd>B</kbd> mark</p>
+        </div>
+
+        <div class="panel-block">
+          <h2>Controls</h2>
+          <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> + <kbd>Space</kbd></p>
+          <p><kbd>Arrows</kbd> + <kbd>Enter</kbd></p>
+          <p><kbd>B</kbd> bot, <kbd>N</kbd> new arena, <kbd>R</kbd> reset</p>
+          <p><kbd>[</kbd>/<kbd>]</kbd> speed down/up</p>
+          <p><kbd>M</kbd> red bot · <kbd>V</kbd> blue controller</p>
+          <p>Laika bot: press <kbd>M</kbd> or open <kbd>?red=laika</kbd></p>
+          <p>Blue aggro Laika: <kbd>V</kbd> or <kbd>?blue=aggro</kbd></p>
+          <p>Pathfinder: <kbd>?nav=1</kbd> or <kbd>V</kbd>→pathfind · click=set goal · <kbd>C</kbd>=chase red</p>
+        </div>
+
+        <div class="panel-block">
+          <h2>Power-Ups</h2>
+          <ul>
+            <li>Rapid: faster fire rate</li>
+            <li>Triple: fast spread shot</li>
+            <li>Shield: stacks with any weapon</li>
+            <li>Snipe: three aimed piercing shots</li>
+            <li>Laser: aimed reflected beam (1.5× damage)</li>
+            <li>Missile: guided explosive round</li>
+          </ul>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <!-- Browser policy weights (pure JS, exported via train/export_policy.py). Press M in-game to cycle agents. -->
+  <!-- v1.5 (v1 numbers + random spawn) neural agent: DAgger clone of the pure-aggression champion, 105-d obs. -->
+  <script src="model_weights_v15clone.js"></script>
+  <!-- fixed-spawn champion (strongest under fixed spawn), 105-d obs -> RICOCHET_POLICIES["v3champ"] -->
+  <script src="model_weights_v3champ.js"></script>
+  <!-- Single source of truth: game_core.js (physics, headless-capable) is loaded
+       first, then game_render.js (canvas + input) drives it. -->
+  <script src="game_core.js?v=survival39"></script>
+  <script src="game_render.js?v=survival39"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+numpy>=1.26
+gymnasium>=0.29
+stable-baselines3>=2.3
+torch>=2.3
+tensorboard>=2.16
+matplotlib>=3.8   # docs/make_figures.py, make_training_figures.py (figure generation only)
